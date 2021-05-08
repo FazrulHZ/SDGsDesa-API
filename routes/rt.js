@@ -18,7 +18,7 @@ router.get('/:id', function (req, res, next) {
 
     var rt_id = req.params.id;
 
-    connection.query('SELECT * FROM tb_rt WHERE rt_id != ?', [rt_id],
+    connection.query('SELECT * FROM tb_rt WHERE rt_id == ?', [rt_id],
         function (error, rows, field) {
             if (error) {
                 console.log(error);

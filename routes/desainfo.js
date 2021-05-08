@@ -18,7 +18,7 @@ router.get('/:id', function (req, res, next) {
 
   var desa_id = req.params.id;
 
-  connection.query('SELECT * FROM tb_desainfo WHERE desa_id != ?', [desa_id],
+  connection.query('SELECT * FROM tb_desainfo WHERE desa_id == ?', [desa_id],
     function (error, rows, field) {
       if (error) {
         console.log(error);
