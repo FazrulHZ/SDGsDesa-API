@@ -6,6 +6,9 @@ var logger = require('morgan');
 const cors = require('cors');
 
 var indexRouter = require('./routes/index');
+var refdesaRouter = require('./routes/ref/refdesa');
+var refkecamatanRouter = require('./routes/ref/refkecamatan');
+var refkabupatenRouter = require('./routes/ref/refkabupaten');
 var desainfoRouter = require('./routes/desainfo');
 
 var app = express();
@@ -19,18 +22,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({origin: '*'}));
+app.use(cors({ origin: '*' }));
 
 app.use('/', indexRouter);
+app.use('/refdesa', refdesaRouter);
+app.use('/refkecamatan', refkecamatanRouter);
+app.use('/refkabupaten', refkabupatenRouter);
 app.use('/desainfo', desainfoRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

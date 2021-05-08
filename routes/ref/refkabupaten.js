@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-var response = require('../helper/response');
-var connection = require('../helper/connection');
+var response = require('../../helper/response');
+var connection = require('../../helper/connection');
 
 router.get('/', function (req, res, next) {
   connection.query('SELECT * FROM tb_kabupaten', function (error, rows, field) {
