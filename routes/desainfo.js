@@ -1,8 +1,22 @@
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+var path = require('path');
+const fs = require('fs')
+
+let slugify = require('slugify')
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
+
+var storage = multer.diskStorage({
+  destination: path.join(__dirname + './../public/upload/desaGambar'),
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+var upload = multer({ storage: storage });
 
 router.get('/', function (req, res, next) {
   connection.query('SELECT * FROM tb_desainfo', function (error, rows, field) {
@@ -18,7 +32,7 @@ router.get('/:id', function (req, res, next) {
 
   var desa_id = req.params.id;
 
-  connection.query('SELECT * FROM tb_desainfo WHERE desa_id == ?', [desa_id],
+  connection.query('SELECT * FROM tb_desainfo WHERE desa_id = ?', [desa_id],
     function (error, rows, field) {
       if (error) {
         console.log(error);
@@ -30,7 +44,8 @@ router.get('/:id', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
 
-  let desa_lokasi = req.body.desa_lokasi;
+  let desa_nama = req.body.desa_nama;
+  let desa_slug = slugify(desa_nama.toLowerCase());
   let desa_email = req.body.desa_email;
   let desa_web = req.body.desa_web;
   let desa_fb = req.body.desa_fb;
@@ -38,21 +53,39 @@ router.post('/', function (req, res, next) {
   let desa_ig = req.body.desa_ig;
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
+  let desa_foto = req.file.filename;
+  let kabupaten_id = req.body.kabupaten_id;
+  let kecamatan_id = req.body.kecamatan_id;
 
-  connection.query('INSERT INTO tb_desainfo (desa_lokasi, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan) values(?, ?, ?, ?, ?, ?, ?, ?)', [desa_lokasi, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan], function (error, rows, field) {
-    if (error) {
-      console.log(error);
-    } else {
-      response.ok("Berhasil Menambahkan Data!", res);
-    }
-  })
+  const check = await new Promise(resolve => {
+    connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id, FROM tb_desainfo WHERE desa_slug = ?', [desa_slug], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id) {
+    response.error(false, "Desa Telah Terdaftar!", 'empty', res);
+  } else {
+    connection.query('INSERT INTO tb_desainfo (desa_nama, desa_slug, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan, desa_foto, kabupaten_id, kecamatan_id) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [desa_nama, desa_slug, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan, desa_foto, kabupaten_id, kecamatan_id], function (error, rows, field) {
+      if (error) {
+        console.log(error);
+      } else {
+        response.ok(true, "Berhasil Menambahkan Data!", 'success', res);
+      }
+    })
+  }
 
 });
 
 router.put('/', function (req, res, next) {
 
   let desa_id = req.body.desa_id;
-  let desa_lokasi = req.body.desa_lokasi;
+  let desa_nama = req.body.desa_nama;
+  let desa_slug = slugify(desa_nama.toLowerCase());
   let desa_email = req.body.desa_email;
   let desa_web = req.body.desa_web;
   let desa_fb = req.body.desa_fb;
@@ -60,26 +93,61 @@ router.put('/', function (req, res, next) {
   let desa_ig = req.body.desa_ig;
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
+  let kabupaten_id = req.body.kabupaten_id;
+  let kecamatan_id = req.body.kecamatan_id;
 
-  connection.query('UPDATE tb_desainfo SET desa_lokasi=?, desa_email=?, desa_web=?, desa_fb=?, desa_twitter=?, desa_ig=?, desa_yt=?, desa_status_pemerintahan=? WHERE desa_id=?', [desa_lokasi, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan, desa_id], function (error, rows, field) {
-    if (error) {
-      console.log(error);
-    } else {
-      response.ok("Berhasil Di Edit!", res)
-    }
-  })
+  const check = await new Promise(resolve => {
+    connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_id FROM tb_desainfo WHERE desa_id = ?', [desa_id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  let desa_foto = req.file === undefined ? check.desa_foto : req.file.filename;
+
+  if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id) {
+    response.error(false, "Desa Telah Terdaftar!", 'empty', res);
+  } else {
+    connection.query('UPDATE tb_desainfo SET desa_nama=?, desa_slug=?, desa_email=?, desa_web=?, desa_fb=?, desa_twitter=?, desa_ig=?, desa_yt=?, desa_status_pemerintahan=?, desa_foto=?, kabupaten_id=?, kecamatan_id=? WHERE desa_id=?', [desa_nama, desa_slug, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan, desa_foto, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {
+      if (error) {
+        console.log(error);
+      } else {
+        response.ok("Berhasil Di Edit!", res)
+      }
+    })
+  }
 });
 
 router.delete('/:id', function (req, res) {
   var desa_id = req.params.id;
 
-  connection.query('DELETE FROM tb_desainfo WHERE desa_id=?', [desa_id], function (error, rows, field) {
-    if (error) {
-      console.log(error)
+  const check = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_desainfo WHERE desa_id = ?', [desa_id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  fs.unlink("./public/upload/desaGambar/" + check.grup_foto, (err) => {
+    if (err) {
+      console.log("failed to delete local image:" + err);
     } else {
-      response.ok("Berhasil Menghapus Data!!", res)
+      console.log('successfully deleted local image');
+      connection.query('DELETE FROM tb_desainfo WHERE desa_id=?', [desa_id], function (error, rows, field) {
+        if (error) {
+          console.log(error)
+        } else {
+          response.ok("Berhasil Menghapus Data!!", res)
+        }
+      })
     }
-  })
+  });
 });
 
 module.exports = router;
