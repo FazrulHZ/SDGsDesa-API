@@ -1,4 +1,5 @@
-public/upload/*
+public/upload/desaGambar/*
+public/upload/userGambar/*
 !public/upload/Readme
 public/images/*
 !public/images/default.png
