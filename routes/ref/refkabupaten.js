@@ -9,7 +9,7 @@ router.get('/', function (req, res, next) {
     if (error) {
       console.log(error);
     } else {
-      response.ok(rows, res);
+      response.ok(true, 'Data Berhasil Diambil', rows, res);
     }
   });
 });
@@ -23,7 +23,7 @@ router.get('/:id', function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(rows, res);
+        response.ok(true, 'Data Berhasil Diambil', rows[0], res);
       }
     });
 });

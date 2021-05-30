@@ -9,21 +9,21 @@ router.get('/', function (req, res, next) {
         if (error) {
             console.log(error);
         } else {
-            response.ok(rows, res);
+            response.ok(true, 'Data Berhasil Diambil', rows, res);
         }
     });
 });
 
 router.get('/:id', function (req, res, next) {
 
-    var kecamatan_id = req.params.id;
+    var kabupaten_id = req.params.id;
 
-    connection.query('SELECT * FROM tb_kecamatan WHERE kecamatan_id == ?', [kecamatan_id],
+    connection.query('SELECT * FROM tb_kecamatan WHERE kabupaten_id = ?', [kabupaten_id],
         function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(rows, res);
+                response.ok(true, 'Data Berhasil Diambil', rows, res);
             }
         });
 });

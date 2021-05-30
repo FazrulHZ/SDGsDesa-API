@@ -19,11 +19,11 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 router.get('/', function (req, res, next) {
-  connection.query('SELECT * FROM tb_desainfo', function (error, rows, field) {
+  connection.query('SELECT * FROM tb_desainfo LEFT JOIN tb_kabupaten ON tb_desainfo.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_desainfo.kecamatan_id = tb_kecamatan.kecamatan_id ORDER BY tb_desainfo.created_at DESC', function (error, rows, field) {
     if (error) {
       console.log(error);
     } else {
-      response.ok(rows, res);
+      response.ok(true, 'Data Berhasil Diambil', rows, res);
     }
   });
 });
@@ -37,12 +37,12 @@ router.get('/:id', function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(rows, res);
+        response.ok(true, 'Data Berhasil Diambil', rows[0], res);
       }
     });
 });
 
-router.post('/', function (req, res, next) {
+router.post('/', upload.single('desa_foto'), async function (req, res, next) {
 
   let desa_nama = req.body.desa_nama;
   let desa_slug = slugify(desa_nama.toLowerCase());
@@ -58,7 +58,7 @@ router.post('/', function (req, res, next) {
   let kecamatan_id = req.body.kecamatan_id;
 
   const check = await new Promise(resolve => {
-    connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id, FROM tb_desainfo WHERE desa_slug = ?', [desa_slug], function (error, rows, field) {
+    connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id FROM tb_desainfo WHERE desa_slug = ?', [desa_slug], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
@@ -81,7 +81,7 @@ router.post('/', function (req, res, next) {
 
 });
 
-router.put('/', function (req, res, next) {
+router.put('/', upload.single('desa_foto'), async function (req, res, next) {
 
   let desa_id = req.body.desa_id;
   let desa_nama = req.body.desa_nama;
@@ -115,13 +115,13 @@ router.put('/', function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok("Berhasil Di Edit!", res)
+        response.ok(true, "Berhasil Merubah Data!", 'success', res)
       }
     })
   }
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', async function (req, res) {
   var desa_id = req.params.id;
 
   const check = await new Promise(resolve => {
@@ -143,7 +143,7 @@ router.delete('/:id', function (req, res) {
         if (error) {
           console.log(error)
         } else {
-          response.ok("Berhasil Menghapus Data!!", res)
+          response.ok(true, "Berhasil Menghapus Data!", 'success', res)
         }
       })
     }
