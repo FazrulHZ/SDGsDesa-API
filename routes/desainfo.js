@@ -134,7 +134,7 @@ router.delete('/:id', async function (req, res) {
     });
   });
 
-  fs.unlink("./public/upload/desaGambar/" + check.grup_foto, (err) => {
+  fs.unlink("./public/upload/desaGambar/" + check.desa_foto, (err) => {
     if (err) {
       console.log("failed to delete local image:" + err);
     } else {
