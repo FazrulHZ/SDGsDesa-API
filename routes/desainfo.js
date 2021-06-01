@@ -97,7 +97,7 @@ router.put('/', upload.single('desa_foto'), async function (req, res, next) {
   let kecamatan_id = req.body.kecamatan_id;
 
   const check = await new Promise(resolve => {
-    connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_id FROM tb_desainfo WHERE desa_id = ?', [desa_id], function (error, rows, field) {
+    connection.query('SELECT COUNT(desa_slug) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug FROM tb_desainfo WHERE desa_id = ?', [desa_id], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
@@ -108,7 +108,7 @@ router.put('/', upload.single('desa_foto'), async function (req, res, next) {
 
   let desa_foto = req.file === undefined ? check.desa_foto : req.file.filename;
 
-  if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id) {
+  if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id && check.desa_slug != desa_slug) {
     response.error(false, "Desa Telah Terdaftar!", 'empty', res);
   } else {
     connection.query('UPDATE tb_desainfo SET desa_nama=?, desa_slug=?, desa_email=?, desa_web=?, desa_fb=?, desa_twitter=?, desa_ig=?, desa_yt=?, desa_status_pemerintahan=?, desa_foto=?, kabupaten_id=?, kecamatan_id=? WHERE desa_id=?', [desa_nama, desa_slug, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan, desa_foto, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {
