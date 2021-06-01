@@ -107,7 +107,7 @@ router.delete('/:id', function (req, res) {
         if (error) {
             console.log(error)
         } else {
-            response.ok("Berhasil Menghapus Data!!", res)
+            response.ok(true, "Berhasil Menghapus Data!", 'success', res)
         }
     })
 });
