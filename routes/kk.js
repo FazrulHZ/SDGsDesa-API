@@ -44,7 +44,7 @@ router.post('/', async function (req, res, next) {
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(*) AS cnt, FROM tb_keluarga WHERE kk_no = ?', [kk_no], function (error, rows, field) {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_keluarga WHERE kk_no = ?', [kk_no], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {

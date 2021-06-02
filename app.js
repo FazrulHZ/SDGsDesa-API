@@ -6,11 +6,14 @@ var logger = require('morgan');
 const cors = require('cors');
 
 var indexRouter = require('./routes/index');
+var refrtRouter = require('./routes/ref/refrt');
 var refdesaRouter = require('./routes/ref/refdesa');
 var refkecamatanRouter = require('./routes/ref/refkecamatan');
 var refkabupatenRouter = require('./routes/ref/refkabupaten');
+
 var desainfoRouter = require('./routes/desainfo');
 var rtRouter = require('./routes/rt');
+var kkRouter = require('./routes/kk');
 
 var app = express();
 
@@ -27,10 +30,13 @@ app.use(cors({ origin: '*' }));
 
 app.use('/', indexRouter);
 app.use('/refdesa', refdesaRouter);
+app.use('/refrt', refrtRouter);
 app.use('/refkecamatan', refkecamatanRouter);
 app.use('/refkabupaten', refkabupatenRouter);
+
 app.use('/desainfo', desainfoRouter);
 app.use('/rt', rtRouter);
+app.use('/kk', kkRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
