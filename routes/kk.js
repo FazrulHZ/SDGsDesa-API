@@ -84,7 +84,7 @@ router.put('/', async function (req, res, next) {
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(*) AS cnt, FROM tb_keluarga WHERE kk_no = ?', [kk_no], function (error, rows, field) {
+        connection.query('SELECT COUNT(kk_id) AS cnt, kk_no FROM tb_keluarga WHERE kk_no = ?', [kk_no], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -93,7 +93,7 @@ router.put('/', async function (req, res, next) {
         });
     });
 
-    if (check.cnt > 0) {
+    if (check.cnt > 0 && check.kk_no != kk_no) {
         response.error(false, "No Kartu Keluarga Telah Terdaftar!", 'empty', res);
     } else {
         connection.query('UPDATE tb_keluarga SET kk_no=?, kk_nama=?, kk_nik=?, kk_alamat=?, kk_tlp=?, kk_lahan=?, kk_lantai=?, kk_tanah=?, kabupaten_id=?, kecamatan_id=?, desa_id=?, rt_id=? WHERE kk_id=?', [kk_no, kk_nama, kk_nik, kk_alamat, kk_tlp, kk_lahan, kk_lantai, kk_tanah, kabupaten_id, kecamatan_id, desa_id, rt_id, kk_id], function (error, rows, field) {
