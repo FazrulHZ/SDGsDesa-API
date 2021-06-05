@@ -64,12 +64,12 @@ router.post('/', upload.single('desa_foto'), async function (req, res, next) {
   let desa_ig = req.body.desa_ig;
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
-  let desa_foto = req.file.filename;
+  let desa_foto = req.file === undefined ? "" : req.file.filename;
   let kabupaten_id = req.body.kabupaten_id;
   let kecamatan_id = req.body.kecamatan_id;
 
   const check = await new Promise(resolve => {
-    connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id FROM tb_desainfo WHERE desa_slug = ?', [desa_slug], function (error, rows, field) {
+    connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
@@ -145,20 +145,32 @@ router.delete('/:id', async function (req, res) {
     });
   });
 
-  fs.unlink("./public/upload/desaGambar/" + check.desa_foto, (err) => {
-    if (err) {
-      console.log("failed to delete local image:" + err);
-    } else {
-      console.log('successfully deleted local image');
-      connection.query('DELETE FROM tb_desainfo WHERE desa_id=?', [desa_id], function (error, rows, field) {
-        if (error) {
-          console.log(error)
-        } else {
-          response.ok(true, "Berhasil Menghapus Data!", 1, 'success', res)
-        }
-      })
-    }
-  });
+  console.log(check.desa_foto);
+
+  if (check.desa_foto == "") {
+    connection.query('DELETE FROM tb_desainfo WHERE desa_id=?', [desa_id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        response.ok(true, "Berhasil Menghapus Data!", 1, 'success', res)
+      }
+    })
+  } else {
+    fs.unlink("./public/upload/desaGambar/" + check.desa_foto, (err) => {
+      if (err) {
+        console.log("failed to delete local image:" + err);
+      } else {
+        console.log('successfully deleted local image');
+        connection.query('DELETE FROM tb_desainfo WHERE desa_id=?', [desa_id], function (error, rows, field) {
+          if (error) {
+            console.log(error)
+          } else {
+            response.ok(true, "Berhasil Menghapus Data!", 1, 'success', res)
+          }
+        })
+      }
+    });
+  }
 });
 
 module.exports = router;

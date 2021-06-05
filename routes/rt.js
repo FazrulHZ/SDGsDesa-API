@@ -51,7 +51,7 @@ router.post('/', async function (req, res, next) {
     let desa_id = req.body.desa_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(rt_id) AS cnt, kabupaten_id, kecamatan_id, desa_id FROM tb_rt WHERE rt_nama = ?', [rt_nama], function (error, rows, field) {
+        connection.query('SELECT COUNT(rt_id) AS cnt, kabupaten_id, kecamatan_id, desa_id FROM tb_rt WHERE rt_nama = ? AND kabupaten_id=? AND kecamatan_id=? AND desa_id=?', [rt_nama, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -88,7 +88,7 @@ router.put('/', async function (req, res, next) {
     let desa_id = req.body.desa_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(rt_nama) AS cnt, kabupaten_id, kecamatan_id, desa_id, rt_nama FROM tb_rt WHERE rt_id = ?', [rt_id], function (error, rows, field) {
+        connection.query('SELECT COUNT(rt_id) AS cnt, kabupaten_id, kecamatan_id, desa_id, rt_id FROM tb_rt WHERE rt_nama = ? AND kabupaten_id=? AND kecamatan_id=? AND desa_id=?', [rt_nama, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -97,7 +97,7 @@ router.put('/', async function (req, res, next) {
         });
     });
 
-    if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id && check.desa_id == desa_id && check.rt_nama != rt_nama) {
+    if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id && check.desa_id == desa_id && check.rt_id != rt_id) {
         response.error(false, "RT/RW Telah Terdaftar!", 'empty', res);
     } else {
         connection.query('UPDATE tb_rt SET rt_nama=?, rt_ketua=?, rt_alamat=?, rt_tlp=?, rt_topografi=?, rt_jumlah_warga=?, kabupaten_id=?, kecamatan_id=?, desa_id=? WHERE rt_id=?', [rt_nama, rt_ketua, rt_alamat, rt_tlp, rt_topografi, rt_jumlah_warga, kabupaten_id, kecamatan_id, desa_id, rt_id], function (error, rows, field) {
