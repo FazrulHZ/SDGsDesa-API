@@ -19,7 +19,7 @@ router.get('/:id', async function (req, res, next) {
     var desa_id = req.params.id;
 
     const count = await new Promise(resolve => {
-        connection.query('SELECT COUNT(*) AS cnt FROM tb_rtWHERE desa_id = ?', [desa_id], function (error, rows, field) {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_rt WHERE desa_id = ?', [desa_id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
