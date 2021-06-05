@@ -14,16 +14,26 @@ router.get('/', function (req, res, next) {
     });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', async function (req, res, next) {
 
     var desa_id = req.params.id;
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_rtWHERE desa_id = ?', [desa_id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
 
     connection.query('SELECT * FROM tb_rt WHERE desa_id = ?', [desa_id],
         function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, 'Data Berhasil Diambil', rows, res);
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
             }
         });
 });

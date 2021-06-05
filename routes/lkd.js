@@ -86,7 +86,7 @@ router.put('/', async function (req, res, next) {
     let desa_id = req.body.desa_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(lkd_slug) AS cnt, lkd_id FROM tb_lkd WHERE lkd_id = ?', [lkd_id], function (error, rows, field) {
+        connection.query('SELECT COUNT(lkd_slug) AS cnt, lkd_slug, lkd_id FROM tb_lkd WHERE lkd_id = ?', [lkd_id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
