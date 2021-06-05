@@ -1,8 +1,9 @@
-exports.ok = function (success, message, values, res) {
+exports.ok = function (success, message, count, values, res) {
     var data = {
         'status': 200,
         'success': success,
         'message': message,
+        'count': count,
         'data': values
     };
 

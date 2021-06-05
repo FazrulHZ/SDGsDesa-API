@@ -15,6 +15,7 @@ var desainfoRouter = require('./routes/desainfo');
 var rtRouter = require('./routes/rt');
 var kkRouter = require('./routes/kk');
 var pendudukRouter = require('./routes/penduduk');
+var lkdRouter = require('./routes/lkd');
 
 var app = express();
 
@@ -39,6 +40,7 @@ app.use('/desainfo', desainfoRouter);
 app.use('/rt', rtRouter);
 app.use('/kk', kkRouter);
 app.use('/penduduk', pendudukRouter);
+app.use('/lkd', lkdRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

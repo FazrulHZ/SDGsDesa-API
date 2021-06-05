@@ -18,12 +18,23 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.get('/', function (req, res, next) {
+router.get('/', async function (req, res, next) {
+
+  const count = await new Promise(resolve => {
+    connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo', function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0].cnt);
+      }
+    });
+  });
+
   connection.query('SELECT * FROM tb_desainfo LEFT JOIN tb_kabupaten ON tb_desainfo.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_desainfo.kecamatan_id = tb_kecamatan.kecamatan_id ORDER BY tb_desainfo.created_at DESC', function (error, rows, field) {
     if (error) {
       console.log(error);
     } else {
-      response.ok(true, 'Data Berhasil Diambil', rows, res);
+      response.ok(true, 'Data Berhasil Diambil', count, rows, res);
     }
   });
 });
@@ -37,7 +48,7 @@ router.get('/:id', function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(true, 'Data Berhasil Diambil', rows[0], res);
+        response.ok(true, 'Data Berhasil Diambil', 1, rows[0], res);
       }
     });
 });
@@ -74,7 +85,7 @@ router.post('/', upload.single('desa_foto'), async function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(true, "Berhasil Menambahkan Data!", 'success', res);
+        response.ok(true, "Berhasil Menambahkan Data!", 1, 'success', res);
       }
     })
   }
@@ -115,7 +126,7 @@ router.put('/', upload.single('desa_foto'), async function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(true, "Berhasil Merubah Data!", 'success', res)
+        response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
       }
     })
   }
@@ -143,7 +154,7 @@ router.delete('/:id', async function (req, res) {
         if (error) {
           console.log(error)
         } else {
-          response.ok(true, "Berhasil Menghapus Data!", 'success', res)
+          response.ok(true, "Berhasil Menghapus Data!", 1, 'success', res)
         }
       })
     }
