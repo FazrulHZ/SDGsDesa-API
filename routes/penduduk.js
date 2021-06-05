@@ -71,6 +71,7 @@ router.post('/', async function (req, res, next) {
 
 router.put('/', async function (req, res, next) {
 
+    let penduduk_id = req.body.penduduk_id;
     let penduduk_nik = req.body.penduduk_nik;
     let penduduk_nama = req.body.penduduk_nama;
     let penduduk_kelamin = req.body.penduduk_kelamin;
@@ -87,7 +88,7 @@ router.put('/', async function (req, res, next) {
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(penduduk_id) AS cnt, penduduk_nik FROM tb_penduduk WHERE penduduk_nik = ?', [penduduk_nik], function (error, rows, field) {
+        connection.query('SELECT COUNT(penduduk_nik) AS cnt, penduduk_id FROM tb_penduduk WHERE penduduk_nik = ?', [penduduk_nik], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -96,7 +97,7 @@ router.put('/', async function (req, res, next) {
         });
     });
 
-    if (check.cnt > 0 && check.penduduk_nik != penduduk_nik) {
+    if (check.cnt > 0 && check.penduduk_id != penduduk_id) {
         response.error(false, "NIK Telah Terdaftar!", 'empty', res);
     } else {
         connection.query('UPDATE tb_penduduk SET penduduk_nik=?, penduduk_nama=?, penduduk_kelamin=?, penduduk_tempatlahir=?, penduduk_tgllahir=?, penduduk_umur=?, penduduk_kawin=?, penduduk_agama=?, penduduk_suku=?, penduduk_wn=?, kabupaten_id=?, kecamatan_id=?, desa_id=?, rt_id=? WHERE penduduk_id=?', [penduduk_nik, penduduk_nama, penduduk_kelamin, penduduk_tempatlahir, penduduk_tgllahir, penduduk_umur, penduduk_kawin, penduduk_agama, penduduk_suku, penduduk_wn, kabupaten_id, kecamatan_id, desa_id, rt_id, penduduk_id], function (error, rows, field) {
