@@ -108,7 +108,7 @@ router.put('/', upload.single('desa_foto'), async function (req, res, next) {
   let kecamatan_id = req.body.kecamatan_id;
 
   const check = await new Promise(resolve => {
-    connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug, desa_id FROM tb_desainfo WHERE desa_slug = ?', [desa_slug], function (error, rows, field) {
+    connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug, desa_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
@@ -144,8 +144,6 @@ router.delete('/:id', async function (req, res) {
       }
     });
   });
-
-  console.log(check.desa_foto);
 
   if (check.desa_foto == "") {
     connection.query('DELETE FROM tb_desainfo WHERE desa_id=?', [desa_id], function (error, rows, field) {
