@@ -48,7 +48,7 @@ router.post('/', async function (req, res, next) {
                 if (error) {
                     console.log(error);
                 } else {
-                    response.ok(true, "Berhasil Menambahkan Data!", 1, 'success', res);
+                    response.ok(true, "Berhasil Menambahkan Data!", 1, rows[0], res);
                 }
             })
         } else {
