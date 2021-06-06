@@ -101,7 +101,7 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
     let user_alamat = req.body.user_alamat;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(user_id) AS cnt, user_foto, user_id FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+        connection.query('SELECT COUNT(user_ktp) AS cnt, user_foto, user_id FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -112,20 +112,34 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
 
     let user_foto = req.file === undefined ? check.user_foto : req.file.filename;
 
-    //Hash Password
-    let salt = bcrypt.genSaltSync(10);
-    let pass = bcrypt.hashSync('' + user_password + '', salt);
-
-    if (check.cnt > 0 && check.user_id != user_id) {
-        response.error(false, "NIK Telah Terdaftar!", 'empty', res);
+    if (user_password == "") {
+        if (check.cnt > 0 && check.user_id != user_id) {
+            response.error(false, "NIK Telah Terdaftar!", 'empty', res);
+        } else {
+            connection.query('UPDATE tb_user SET user_ktp=?, user_nama=?, user_tlp=?, user_alamat=?, user_foto=? WHERE user_id=?', [user_ktp, user_nama, user_tlp, user_alamat, user_foto, user_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
+                }
+            })
+        }
     } else {
-        connection.query('UPDATE tb_user SET user_ktp=?, user_password=?, user_nama=?, user_tlp=?, user_alamat=?, user_foto=? WHERE user_id=?', [user_ktp, pass, user_nama, user_tlp, user_alamat, user_foto, user_id], function (error, rows, field) {
-            if (error) {
-                console.log(error);
-            } else {
-                response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
-            }
-        })
+        //Hash Password
+        let salt = bcrypt.genSaltSync(10);
+        let pass = bcrypt.hashSync('' + user_password + '', salt);
+
+        if (check.cnt > 0 && check.user_id != user_id) {
+            response.error(false, "NIK Telah Terdaftar!", 'empty', res);
+        } else {
+            connection.query('UPDATE tb_user SET user_ktp=?, user_password=?, user_nama=?, user_tlp=?, user_alamat=?, user_foto=? WHERE user_id=?', [user_ktp, pass, user_nama, user_tlp, user_alamat, user_foto, user_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
+                }
+            })
+        }
     }
 });
 
@@ -151,7 +165,7 @@ router.delete('/:id', async function (req, res) {
             }
         })
     } else {
-        fs.unlink("./public/upload/desaGambar/" + check.user_foto, (err) => {
+        fs.unlink("./public/upload/userGambar/" + check.user_foto, (err) => {
             if (err) {
                 console.log("failed to delete local image:" + err);
             } else {
