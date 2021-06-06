@@ -63,6 +63,10 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
     let user_alamat = req.body.user_alamat;
     let user_foto = req.file === undefined ? "" : req.file.filename;
 
+    //Hash Password
+    var salt = bcrypt.genSaltSync(10);
+    var pass = bcrypt.hashSync('' + user_password + '', salt);
+
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(user_ktp) AS cnt FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
             if (error) {
@@ -72,10 +76,6 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
             }
         });
     });
-
-    //Hash Password
-    let salt = bcrypt.genSaltSync(10);
-    let pass = bcrypt.hashSync('' + user_password + '', salt);
 
     if (check.cnt > 0) {
         response.error(false, "NIK Telah Terdaftar!", 'empty', res);
@@ -126,8 +126,8 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
         }
     } else {
         //Hash Password
-        let salt = bcrypt.genSaltSync(10);
-        let pass = bcrypt.hashSync('' + user_password + '', salt);
+        var salt = bcrypt.genSaltSync(10);
+        var pass = bcrypt.hashSync('' + user_password + '', salt);
 
         if (check.cnt > 0 && check.user_id != user_id) {
             response.error(false, "NIK Telah Terdaftar!", 'empty', res);

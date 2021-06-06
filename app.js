@@ -17,6 +17,7 @@ var kkRouter = require('./routes/kk');
 var pendudukRouter = require('./routes/penduduk');
 var lkdRouter = require('./routes/lkd');
 var userRouter = require('./routes/user');
+var loginRouter = require('./routes/login');
 
 var app = express();
 
@@ -50,6 +51,7 @@ app.use('/kk', kkRouter);
 app.use('/penduduk', pendudukRouter);
 app.use('/lkd', lkdRouter);
 app.use('/user', userRouter);
+app.use('/login', loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
