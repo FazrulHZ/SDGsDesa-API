@@ -31,7 +31,7 @@ router.get('/', async function (req, res, next) {
         });
     });
 
-    connection.query('SELECT * FROM tb_user ORDER BY created_at DESC', function (error, rows, field) {
+    connection.query('SELECT * FROM tb_user WHERE user_ktp != 531414009 ORDER BY created_at DESC', function (error, rows, field) {
         if (error) {
             console.log(error);
         } else {
