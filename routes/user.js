@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 var path = require('path');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 const fs = require('fs')
 
 let slugify = require('slugify')
