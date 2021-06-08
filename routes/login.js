@@ -1,26 +1,30 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
+var config = require('../helper/config');
 
 router.post('/', async function (req, res, next) {
 
     let user_ktp = req.body.user_ktp;
     let user_password = req.body.user_password;
 
-    console.log("Input KTP: " + user_ktp);
-    console.log("Input Password: " + user_password);
-
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(user_ktp) AS cnt, user_password FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+        connection.query('SELECT COUNT(user_ktp) AS cnt, user_password, user_id FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
                 resolve(rows[0]);
             }
         });
+    });
+
+    //Yang Mo Return
+    let token = await jwt.sign({ id: check.user_id }, config.secret, {
+        expiresIn: 86400 // expires in 24 hours
     });
 
     if (check.cnt > 0) {
@@ -40,15 +44,13 @@ router.post('/', async function (req, res, next) {
         });
 
         var cekpass = bcrypt.compareSync(user_password, hash);
-        console.log(hash);
-        console.log(cekpass);
 
         if (cekpass) {
             connection.query('SELECT * FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
                 if (error) {
                     console.log(error);
                 } else {
-                    response.ok(true, "Berhasil Menambahkan Data!", 1, rows[0], res);
+                    response.ok(true, "Berhasil Menambahkan Data!", 1, { identitas: rows[0], token: token }, res);
                 }
             })
         } else {

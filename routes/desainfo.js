@@ -8,6 +8,7 @@ let slugify = require('slugify')
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
+var auth = require('../helper/auth');
 
 var storage = multer.diskStorage({
   destination: path.join(__dirname + './../public/upload/desaGambar'),
@@ -18,7 +19,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.get('/', async function (req, res, next) {
+router.get('/', auth, async function (req, res, next) {
 
   const count = await new Promise(resolve => {
     connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo', function (error, rows, field) {
