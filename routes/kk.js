@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
+var auth = require('../helper/auth');
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
 
-router.get('/', async function (req, res, next) {
+router.get('/', auth, async function (req, res, next) {
     const count = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_keluarga', function (error, rows, field) {
             if (error) {
@@ -24,7 +25,7 @@ router.get('/', async function (req, res, next) {
     });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', auth, function (req, res, next) {
 
     var kk_id = req.params.id;
 
@@ -38,7 +39,7 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', async function (req, res, next) {
+router.post('/', auth, async function (req, res, next) {
 
     let kk_no = req.body.kk_no;
     let kk_nama = req.body.kk_nama;
@@ -77,7 +78,7 @@ router.post('/', async function (req, res, next) {
 
 });
 
-router.put('/', async function (req, res, next) {
+router.put('/', auth, async function (req, res, next) {
 
     let kk_id = req.body.kk_id;
     let kk_no = req.body.kk_no;
@@ -116,7 +117,7 @@ router.put('/', async function (req, res, next) {
     }
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', auth, function (req, res) {
     var kk_id = req.params.id;
 
     connection.query('DELETE FROM tb_keluarga WHERE kk_id=?', [kk_id], function (error, rows, field) {

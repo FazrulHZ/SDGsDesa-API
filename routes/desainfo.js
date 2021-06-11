@@ -40,7 +40,7 @@ router.get('/', auth, async function (req, res, next) {
   });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', auth, function (req, res, next) {
 
   var desa_id = req.params.id;
 
@@ -54,7 +54,7 @@ router.get('/:id', function (req, res, next) {
     });
 });
 
-router.post('/', upload.single('desa_foto'), async function (req, res, next) {
+router.post('/', auth, upload.single('desa_foto'), async function (req, res, next) {
 
   let desa_nama = req.body.desa_nama;
   let desa_slug = slugify(desa_nama.toLowerCase());
@@ -93,7 +93,7 @@ router.post('/', upload.single('desa_foto'), async function (req, res, next) {
 
 });
 
-router.put('/', upload.single('desa_foto'), async function (req, res, next) {
+router.put('/', auth, upload.single('desa_foto'), async function (req, res, next) {
 
   let desa_id = req.body.desa_id;
   let desa_nama = req.body.desa_nama;
@@ -133,7 +133,7 @@ router.put('/', upload.single('desa_foto'), async function (req, res, next) {
   }
 });
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', auth, async function (req, res) {
   var desa_id = req.params.id;
 
   const check = await new Promise(resolve => {

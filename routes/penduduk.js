@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
+var auth = require('../helper/auth');
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
 
-router.get('/', async function (req, res, next) {
+router.get('/', auth, async function (req, res, next) {
     const count = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_penduduk', function (error, rows, field) {
             if (error) {
@@ -24,7 +25,7 @@ router.get('/', async function (req, res, next) {
     });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', auth, function (req, res, next) {
 
     var penduduk_id = req.params.id;
 
@@ -38,7 +39,7 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', async function (req, res, next) {
+router.post('/', auth, async function (req, res, next) {
 
     let penduduk_nik = req.body.penduduk_nik;
     let penduduk_nama = req.body.penduduk_nama;
@@ -79,7 +80,7 @@ router.post('/', async function (req, res, next) {
 
 });
 
-router.put('/', async function (req, res, next) {
+router.put('/', auth, async function (req, res, next) {
 
     let penduduk_id = req.body.penduduk_id;
     let penduduk_nik = req.body.penduduk_nik;
@@ -120,7 +121,7 @@ router.put('/', async function (req, res, next) {
     }
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', auth, function (req, res) {
     var penduduk_id = req.params.id;
 
     connection.query('DELETE FROM tb_penduduk WHERE penduduk_id=?', [penduduk_id], function (error, rows, field) {

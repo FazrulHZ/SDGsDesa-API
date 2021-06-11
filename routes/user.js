@@ -3,6 +3,7 @@ var router = express.Router();
 var multer = require('multer');
 var path = require('path');
 var bcrypt = require('bcryptjs');
+var auth = require('../helper/auth');
 const fs = require('fs')
 
 let slugify = require('slugify')
@@ -19,7 +20,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.get('/', async function (req, res, next) {
+router.get('/', auth, async function (req, res, next) {
 
     const count = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_user', function (error, rows, field) {
@@ -40,7 +41,7 @@ router.get('/', async function (req, res, next) {
     });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', auth, function (req, res, next) {
 
     var user_id = req.params.id;
 
@@ -54,7 +55,7 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', upload.single('user_foto'), async function (req, res, next) {
+router.post('/', auth, upload.single('user_foto'), async function (req, res, next) {
 
     let user_ktp = req.body.user_ktp;
     let user_password = req.body.user_password;
@@ -91,7 +92,7 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
 
 });
 
-router.put('/', upload.single('user_foto'), async function (req, res, next) {
+router.put('/', auth, upload.single('user_foto'), async function (req, res, next) {
 
     let user_id = req.body.user_id;
     let user_ktp = req.body.user_ktp;
@@ -143,7 +144,7 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
     }
 });
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', auth, async function (req, res) {
     var user_id = req.params.id;
 
     const check = await new Promise(resolve => {

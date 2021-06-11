@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
+var auth = require('../helper/auth');
+
 
 let slugify = require('slugify')
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
 
-router.get('/', async function (req, res, next) {
+router.get('/', auth, async function (req, res, next) {
     const count = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_lkd', function (error, rows, field) {
             if (error) {
@@ -26,7 +28,7 @@ router.get('/', async function (req, res, next) {
     });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', auth, function (req, res, next) {
 
     var lkd_id = req.params.id;
 
@@ -40,7 +42,7 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', async function (req, res, next) {
+router.post('/', auth, async function (req, res, next) {
 
     let lkd_nama = req.body.lkd_nama;
     let lkd_slug = slugify(lkd_nama.toLowerCase());
@@ -74,7 +76,7 @@ router.post('/', async function (req, res, next) {
 
 });
 
-router.put('/', async function (req, res, next) {
+router.put('/', auth, async function (req, res, next) {
 
     let lkd_id = req.body.lkd_id;
     let lkd_nama = req.body.lkd_nama;
@@ -108,7 +110,7 @@ router.put('/', async function (req, res, next) {
     }
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', auth, function (req, res) {
     var lkd_id = req.params.id;
 
     connection.query('DELETE FROM tb_lkd WHERE lkd_id=?', [lkd_id], function (error, rows, field) {
