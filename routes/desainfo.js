@@ -133,8 +133,9 @@ router.put('/', auth, upload.single('desa_foto'), async function (req, res, next
   }
 });
 
-router.delete('/:id', auth, async function (req, res) {
-  var desa_id = req.params.id;
+router.delete('/', auth, async function (req, res) {
+
+  var desa_id = req.body.desa_id;
 
   const check = await new Promise(resolve => {
     connection.query('SELECT * FROM tb_desainfo WHERE desa_id = ?', [desa_id], function (error, rows, field) {

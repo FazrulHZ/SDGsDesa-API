@@ -9,7 +9,7 @@ const jwtAuth = (req, res, next) => {
         next();
     } catch (e) {
         res.json({
-            message: "404 - NOT FOUND"
+            message: "Access Denied"
         })
     }
 }
