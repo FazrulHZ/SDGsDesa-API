@@ -9,11 +9,13 @@ var config = require('../helper/config');
 
 router.post('/', async function (req, res, next) {
 
-    let user_ktp = req.body.user_ktp;
+    let user_name = req.body.user_name;
     let user_password = req.body.user_password;
 
+    console.log(user_name);
+
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(user_ktp) AS cnt, user_password, user_id FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+        connection.query('SELECT COUNT(user_name) AS cnt, user_password, user_id FROM tb_user WHERE user_name = ?', [user_name], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -30,7 +32,7 @@ router.post('/', async function (req, res, next) {
     if (check.cnt > 0) {
 
         const hash = await new Promise(resolve => {
-            connection.query('SELECT user_password AS pass FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+            connection.query('SELECT user_password AS pass FROM tb_user WHERE user_name = ?', [user_name], function (error, rows, field) {
                 if (error) {
                     console.log(error)
                 } else {
@@ -46,11 +48,11 @@ router.post('/', async function (req, res, next) {
         var cekpass = bcrypt.compareSync(user_password, hash);
 
         if (cekpass) {
-            connection.query('SELECT * FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+            connection.query('SELECT * FROM tb_user WHERE user_name = ?', [user_name], function (error, rows, field) {
                 if (error) {
                     console.log(error);
                 } else {
-                    response.ok(true, "Berhasil Menambahkan Data!", 1, { identitas: rows[0], token: token }, res);
+                    response.ok(true, "Berhasil Menambahkan Data!", 0, { identitas: rows[0], token: token }, res);
                 }
             })
         } else {
