@@ -21,23 +21,59 @@ var upload = multer({ storage: storage });
 
 router.get('/', auth, async function (req, res, next) {
 
-  const count = await new Promise(resolve => {
-    connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo', function (error, rows, field) {
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
-        resolve(rows[0].cnt);
+        resolve(rows[0]);
       }
     });
   });
 
-  connection.query('SELECT * FROM tb_desainfo LEFT JOIN tb_kabupaten ON tb_desainfo.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_desainfo.kecamatan_id = tb_kecamatan.kecamatan_id ORDER BY tb_desainfo.created_at DESC', function (error, rows, field) {
-    if (error) {
-      console.log(error);
-    } else {
-      response.ok(true, 'Data Berhasil Diambil', count, rows, res);
-    }
-  });
+  if (cekAuth.user_lvl === '1') {
+
+    const count = await new Promise(resolve => {
+      connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo', function (error, rows, field) {
+        if (error) {
+          console.log(error)
+        } else {
+          resolve(rows[0].cnt);
+        }
+      });
+    });
+
+    connection.query('SELECT * FROM tb_desainfo LEFT JOIN tb_kabupaten ON tb_desainfo.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_desainfo.kecamatan_id = tb_kecamatan.kecamatan_id ORDER BY tb_desainfo.created_at DESC', function (error, rows, field) {
+      if (error) {
+        console.log(error);
+      } else {
+        response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+      }
+    });
+
+  } else {
+
+    const count = await new Promise(resolve => {
+      connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo WHERE = ?', [cekAuth.desa_id], function (error, rows, field) {
+        if (error) {
+          console.log(error)
+        } else {
+          resolve(rows[0].cnt);
+        }
+      });
+    });
+
+    connection.query('SELECT * FROM tb_desainfo LEFT JOIN tb_kabupaten ON tb_desainfo.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_desainfo.kecamatan_id = tb_kecamatan.kecamatan_id WHERE tb_desainfo.desa_id = ? ORDER BY tb_desainfo.created_at DESC', [cekAuth.desa_id], function (error, rows, field) {
+      if (error) {
+        console.log(error);
+      } else {
+        response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+      }
+    });
+
+  }
 });
 
 router.get('/:id', auth, function (req, res, next) {
@@ -66,8 +102,8 @@ router.post('/', auth, upload.single('desa_foto'), async function (req, res, nex
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
   let desa_foto = req.file === undefined ? "" : req.file.filename;
-  let kabupaten_id = req.body.kabupaten_id;
-  let kecamatan_id = req.body.kecamatan_id;
+  let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+  let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
 
   const check = await new Promise(resolve => {
     connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {
@@ -105,8 +141,8 @@ router.put('/', auth, upload.single('desa_foto'), async function (req, res, next
   let desa_ig = req.body.desa_ig;
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
-  let kabupaten_id = req.body.kabupaten_id;
-  let kecamatan_id = req.body.kecamatan_id;
+  let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+  let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
 
   const check = await new Promise(resolve => {
     connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug, desa_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {

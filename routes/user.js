@@ -73,8 +73,24 @@ router.post('/', auth, upload.single('user_foto'), async function (req, res, nex
     var salt = bcrypt.genSaltSync(10);
     var pass = bcrypt.hashSync('' + user_password + '', salt);
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== '1') {
+        return response.noAkses(res);
+    }
+
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(user_ktp) AS cnt FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+        connection.query('SELECT COUNT(user_name) AS cnt FROM tb_user WHERE user_name = ?', [user_name], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -84,13 +100,13 @@ router.post('/', auth, upload.single('user_foto'), async function (req, res, nex
     });
 
     if (check.cnt > 0) {
-        response.error(false, "NIK Telah Terdaftar!", 'empty', res);
+        response.error(false, "Username Telah Terdaftar!", 'empty', res);
     } else {
         connection.query('INSERT INTO tb_user (user_ktp, user_nama, user_name, user_password, user_tlp, user_alamat, user_foto, user_lvl, kabupaten_id, kecamatan_id, desa_id) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [user_ktp, user_nama, user_name, pass, user_tlp, user_alamat, user_foto, user_lvl, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, "Berhasil Menambahkan Data!", 1, 'success', res);
+                response.ok(true, "Berhasil Menambahkan Data!", 0, 'success', res);
             }
         })
     }
@@ -112,7 +128,7 @@ router.put('/', auth, upload.single('user_foto'), async function (req, res, next
     let desa_id = req.body.desa_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(user_ktp) AS cnt, user_foto, user_id FROM tb_user WHERE user_ktp = ?', [user_ktp], function (error, rows, field) {
+        connection.query('SELECT COUNT(user_name) AS cnt, user_foto, user_id FROM tb_user WHERE user_name = ?', [user_ktp], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -123,15 +139,31 @@ router.put('/', auth, upload.single('user_foto'), async function (req, res, next
 
     let user_foto = req.file === undefined ? check.user_foto : req.file.filename;
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== '1') {
+        return response.noAkses(res);
+    }
+
     if (user_password == "") {
         if (check.cnt > 0 && check.user_id != user_id) {
-            response.error(false, "NIK Telah Terdaftar!", 'empty', res);
+            response.error(false, "Username Telah Terdaftar!", 'empty', res);
         } else {
             connection.query('UPDATE tb_user SET user_ktp=?, user_nama=?, user_name=?, user_tlp=?, user_alamat=?, user_foto=?, user_lvl=?, kabupaten_id=?, kecamatan_id=?, desa_id=? WHERE user_id=?', [user_ktp, user_nama, user_name, user_tlp, user_alamat, user_foto, user_lvl, kabupaten_id, kecamatan_id, desa_id, user_id], function (error, rows, field) {
                 if (error) {
                     console.log(error);
                 } else {
-                    response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
+                    response.ok(true, "Berhasil Merubah Data!", 0, 'success', res)
                 }
             })
         }
@@ -141,13 +173,13 @@ router.put('/', auth, upload.single('user_foto'), async function (req, res, next
         var pass = bcrypt.hashSync('' + user_password + '', salt);
 
         if (check.cnt > 0 && check.user_id != user_id) {
-            response.error(false, "NIK Telah Terdaftar!", 'empty', res);
+            response.error(false, "Username Telah Terdaftar!", 'empty', res);
         } else {
             connection.query('UPDATE tb_user SET user_ktp=?, user_nama=?, user_name=?, user_password=?, user_tlp=?, user_alamat=?, user_foto=?, user_lvl=?, kabupaten_id=?, kecamatan_id=?, desa_id=? WHERE user_id=?', [user_ktp, user_nama, user_name, pass, user_tlp, user_alamat, user_foto, user_lvl, kabupaten_id, kecamatan_id, desa_id, user_id], function (error, rows, field) {
                 if (error) {
                     console.log(error);
                 } else {
-                    response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
+                    response.ok(true, "Berhasil Merubah Data!", 0, 'success', res)
                 }
             })
         }
@@ -156,6 +188,22 @@ router.put('/', auth, upload.single('user_foto'), async function (req, res, next
 
 router.delete('/:id', auth, async function (req, res) {
     var user_id = req.params.id;
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== '1') {
+        return response.noAkses(res);
+    }
 
     const check = await new Promise(resolve => {
         connection.query('SELECT * FROM tb_user WHERE user_id = ?', [user_id], function (error, rows, field) {

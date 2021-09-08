@@ -34,3 +34,16 @@ exports.error = function (success, message, values, res) {
     res.json(data);
     res.end();
 };
+
+exports.noAkses = function (res) {
+    var data = {
+        'status': 404,
+        'success': false,
+        'message': 'Access Denied',
+        'data': 'empty.'
+    };
+
+    res.status(404);
+    res.json(data);
+    res.end();
+};

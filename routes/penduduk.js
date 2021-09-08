@@ -6,23 +6,60 @@ var response = require('../helper/response');
 var connection = require('../helper/connection');
 
 router.get('/', auth, async function (req, res, next) {
-    const count = await new Promise(resolve => {
-        connection.query('SELECT COUNT(*) AS cnt FROM tb_penduduk', function (error, rows, field) {
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
-                resolve(rows[0].cnt);
+                resolve(rows[0]);
             }
         });
     });
 
-    connection.query('SELECT tb_penduduk.*, tb_kabupaten.kabupaten_nama, tb_kecamatan.kecamatan_nama, tb_desainfo.desa_nama, tb_rt.rt_nama FROM tb_penduduk LEFT JOIN tb_kabupaten ON tb_penduduk.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_penduduk.kecamatan_id = tb_kecamatan.kecamatan_id LEFT JOIN tb_desainfo ON tb_penduduk.desa_id = tb_desainfo.desa_id LEFT JOIN tb_rt ON tb_penduduk.rt_id = tb_rt.rt_id ORDER BY tb_penduduk.created_at DESC', function (error, rows, field) {
-        if (error) {
-            console.log(error);
-        } else {
-            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
-        }
-    });
+    if (cekAuth.user_lvl === '1') {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_penduduk', function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT tb_penduduk.*, tb_kabupaten.kabupaten_nama, tb_kecamatan.kecamatan_nama, tb_desainfo.desa_nama, tb_rt.rt_nama FROM tb_penduduk LEFT JOIN tb_kabupaten ON tb_penduduk.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_penduduk.kecamatan_id = tb_kecamatan.kecamatan_id LEFT JOIN tb_desainfo ON tb_penduduk.desa_id = tb_desainfo.desa_id LEFT JOIN tb_rt ON tb_penduduk.rt_id = tb_rt.rt_id ORDER BY tb_penduduk.created_at DESC', function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+
+    } else {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_penduduk WHERE desa_id = ?', [cekAuth.desa_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT tb_penduduk.*, tb_kabupaten.kabupaten_nama, tb_kecamatan.kecamatan_nama, tb_desainfo.desa_nama, tb_rt.rt_nama FROM tb_penduduk LEFT JOIN tb_kabupaten ON tb_penduduk.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_penduduk.kecamatan_id = tb_kecamatan.kecamatan_id LEFT JOIN tb_desainfo ON tb_penduduk.desa_id = tb_desainfo.desa_id LEFT JOIN tb_rt ON tb_penduduk.rt_id = tb_rt.rt_id WHERE tb_penduduk.desa_id = ? ORDER BY tb_penduduk.created_at DESC', [cekAuth.desa_id], function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+    }
+
 });
 
 router.get('/:id', auth, function (req, res, next) {
@@ -41,6 +78,18 @@ router.get('/:id', auth, function (req, res, next) {
 
 router.post('/', auth, async function (req, res, next) {
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
     let penduduk_nik = req.body.penduduk_nik;
     let penduduk_nama = req.body.penduduk_nama;
     let penduduk_kelamin = req.body.penduduk_kelamin;
@@ -51,9 +100,9 @@ router.post('/', auth, async function (req, res, next) {
     let penduduk_agama = req.body.penduduk_agama;
     let penduduk_suku = req.body.penduduk_suku;
     let penduduk_wn = req.body.penduduk_wn;
-    let kabupaten_id = req.body.kabupaten_id;
-    let kecamatan_id = req.body.kecamatan_id;
-    let desa_id = req.body.desa_id;
+    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {
@@ -82,6 +131,18 @@ router.post('/', auth, async function (req, res, next) {
 
 router.put('/', auth, async function (req, res, next) {
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
     let penduduk_id = req.body.penduduk_id;
     let penduduk_nik = req.body.penduduk_nik;
     let penduduk_nama = req.body.penduduk_nama;
@@ -93,9 +154,9 @@ router.put('/', auth, async function (req, res, next) {
     let penduduk_agama = req.body.penduduk_agama;
     let penduduk_suku = req.body.penduduk_suku;
     let penduduk_wn = req.body.penduduk_wn;
-    let kabupaten_id = req.body.kabupaten_id;
-    let kecamatan_id = req.body.kecamatan_id;
-    let desa_id = req.body.desa_id;
+    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {

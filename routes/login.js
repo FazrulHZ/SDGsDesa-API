@@ -12,8 +12,6 @@ router.post('/', async function (req, res, next) {
     let user_name = req.body.user_name;
     let user_password = req.body.user_password;
 
-    console.log(user_name);
-
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(user_name) AS cnt, user_password, user_id FROM tb_user WHERE user_name = ?', [user_name], function (error, rows, field) {
             if (error) {

@@ -9,23 +9,60 @@ var response = require('../helper/response');
 var connection = require('../helper/connection');
 
 router.get('/', auth, async function (req, res, next) {
-    const count = await new Promise(resolve => {
-        connection.query('SELECT COUNT(*) AS cnt FROM tb_lkd', function (error, rows, field) {
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
-                resolve(rows[0].cnt);
+                resolve(rows[0]);
             }
         });
     });
 
-    connection.query('SELECT tb_lkd.*, tb_kabupaten.kabupaten_nama, tb_kecamatan.kecamatan_nama, tb_desainfo.desa_nama FROM tb_lkd LEFT JOIN tb_kabupaten ON tb_lkd.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_lkd.kecamatan_id = tb_kecamatan.kecamatan_id LEFT JOIN tb_desainfo ON tb_lkd.desa_id = tb_desainfo.desa_id ORDER BY tb_lkd.created_at DESC', function (error, rows, field) {
-        if (error) {
-            console.log(error);
-        } else {
-            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
-        }
-    });
+    if (cekAuth.user_lvl === '1') {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_lkd', function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT tb_lkd.*, tb_kabupaten.kabupaten_nama, tb_kecamatan.kecamatan_nama, tb_desainfo.desa_nama FROM tb_lkd LEFT JOIN tb_kabupaten ON tb_lkd.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_lkd.kecamatan_id = tb_kecamatan.kecamatan_id LEFT JOIN tb_desainfo ON tb_lkd.desa_id = tb_desainfo.desa_id ORDER BY tb_lkd.created_at DESC', function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+
+    } else {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_lkd WHERE desa_id = ?', [cekAuth.desa_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT tb_lkd.*, tb_kabupaten.kabupaten_nama, tb_kecamatan.kecamatan_nama, tb_desainfo.desa_nama FROM tb_lkd LEFT JOIN tb_kabupaten ON tb_lkd.kabupaten_id = tb_kabupaten.kabupaten_id LEFT JOIN tb_kecamatan ON tb_lkd.kecamatan_id = tb_kecamatan.kecamatan_id LEFT JOIN tb_desainfo ON tb_lkd.desa_id = tb_desainfo.desa_id WHERE tb_lkd.desa_id = ? ORDER BY tb_lkd.created_at DESC', [cekAuth.desa_id], function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+
+    }
 });
 
 router.get('/:id', auth, function (req, res, next) {
@@ -44,13 +81,25 @@ router.get('/:id', auth, function (req, res, next) {
 
 router.post('/', auth, async function (req, res, next) {
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
     let lkd_nama = req.body.lkd_nama;
     let lkd_slug = slugify(lkd_nama.toLowerCase());
     let lkd_pengurus = req.body.lkd_pengurus;
     let lkd_anggota = req.body.lkd_anggota;
-    let kabupaten_id = req.body.kabupaten_id;
-    let kecamatan_id = req.body.kecamatan_id;
-    let desa_id = req.body.desa_id;
+    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_lkd WHERE lkd_slug = ?', [lkd_slug], function (error, rows, field) {
@@ -78,14 +127,26 @@ router.post('/', auth, async function (req, res, next) {
 
 router.put('/', auth, async function (req, res, next) {
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
     let lkd_id = req.body.lkd_id;
     let lkd_nama = req.body.lkd_nama;
     let lkd_slug = slugify(lkd_nama.toLowerCase());
     let lkd_pengurus = req.body.lkd_pengurus;
     let lkd_anggota = req.body.lkd_anggota;
-    let kabupaten_id = req.body.kabupaten_id;
-    let kecamatan_id = req.body.kecamatan_id;
-    let desa_id = req.body.desa_id;
+    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(lkd_slug) AS cnt, lkd_slug, lkd_id FROM tb_lkd WHERE lkd_id = ?', [lkd_id], function (error, rows, field) {
