@@ -76,11 +76,21 @@ router.get('/', auth, async function (req, res, next) {
   }
 });
 
-router.get('/:id', auth, function (req, res, next) {
+router.get('/profil', auth, async function (req, res, next) {
 
-  var desa_id = req.params.id;
+  const role = req.user;
 
-  connection.query('SELECT * FROM tb_desainfo WHERE desa_id = ?', [desa_id],
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  connection.query('SELECT * FROM tb_desainfo WHERE desa_id = ?', [cekAuth.desa_id],
     function (error, rows, field) {
       if (error) {
         console.log(error);
@@ -91,6 +101,18 @@ router.get('/:id', auth, function (req, res, next) {
 });
 
 router.post('/', auth, upload.single('desa_foto'), async function (req, res, next) {
+
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
 
   let desa_nama = req.body.desa_nama;
   let desa_slug = slugify(desa_nama.toLowerCase());
@@ -130,6 +152,18 @@ router.post('/', auth, upload.single('desa_foto'), async function (req, res, nex
 });
 
 router.put('/', auth, upload.single('desa_foto'), async function (req, res, next) {
+
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
 
   let desa_id = req.body.desa_id;
   let desa_nama = req.body.desa_nama;
@@ -206,6 +240,58 @@ router.delete('/', auth, async function (req, res) {
         })
       }
     });
+  }
+});
+
+router.put('/profil', auth, upload.single('desa_foto'), async function (req, res, next) {
+
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  let desa_id = req.body.desa_id;
+  let desa_nama = req.body.desa_nama;
+  let desa_slug = slugify(desa_nama.toLowerCase());
+  let desa_email = req.body.desa_email;
+  let desa_web = req.body.desa_web;
+  let desa_fb = req.body.desa_fb;
+  let desa_twitter = req.body.desa_twitter;
+  let desa_ig = req.body.desa_ig;
+  let desa_yt = req.body.desa_yt;
+  let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
+  let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+  let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+
+  const check = await new Promise(resolve => {
+    connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug, desa_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  let desa_foto = req.file === undefined ? check.desa_foto : req.file.filename;
+
+  if (check.cnt > 0 && check.kabupaten_id == kabupaten_id && check.kecamatan_id == kecamatan_id && check.desa_id != desa_id) {
+    response.error(false, "Desa Telah Terdaftar!", 'empty', res);
+  } else {
+    connection.query('UPDATE tb_desainfo SET desa_nama=?, desa_slug=?, desa_email=?, desa_web=?, desa_fb=?, desa_twitter=?, desa_ig=?, desa_yt=?, desa_status_pemerintahan=?, desa_foto=?, kabupaten_id=?, kecamatan_id=? WHERE desa_id=?', [desa_nama, desa_slug, desa_email, desa_web, desa_fb, desa_twitter, desa_ig, desa_yt, desa_status_pemerintahan, desa_foto, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {
+      if (error) {
+        console.log(error);
+      } else {
+        response.ok(true, "Berhasil Merubah Data!", 1, 'success', res)
+      }
+    })
   }
 });
 

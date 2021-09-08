@@ -78,6 +78,18 @@ router.get('/:id', auth, function (req, res, next) {
 
 router.post('/', auth, async function (req, res, next) {
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
     let kk_no = req.body.kk_no;
     let kk_nama = req.body.kk_nama;
     let kk_nik = req.body.kk_nik;
@@ -116,6 +128,18 @@ router.post('/', auth, async function (req, res, next) {
 });
 
 router.put('/', auth, async function (req, res, next) {
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
 
     let kk_id = req.body.kk_id;
     let kk_no = req.body.kk_no;
