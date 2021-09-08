@@ -52,7 +52,7 @@ router.post('/', async function (req, res, next) {
                 if (error) {
                     console.log(error);
                 } else {
-                    response.ok(true, "Berhasil Menambahkan Data!", 0, { identitas: rows[0], token: token }, res);
+                    response.ok(true, "Berhasil Mengambil Data!", 0, { identitas: rows[0], token: token }, res);
                 }
             })
         } else {
@@ -60,7 +60,7 @@ router.post('/', async function (req, res, next) {
         }
 
     } else {
-        response.error(false, "NIK Anda Tidak Terdaftar!", 'empty', res);
+        response.error(false, "Username Anda Tidak Terdaftar!", 'empty', res);
     }
 
 });
