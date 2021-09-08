@@ -56,7 +56,7 @@ router.get('/', auth, async function (req, res, next) {
   } else {
 
     const count = await new Promise(resolve => {
-      connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo WHERE = ?', [cekAuth.desa_id], function (error, rows, field) {
+      connection.query('SELECT COUNT(*) AS cnt FROM tb_desainfo WHERE desa_id = ?', [cekAuth.desa_id], function (error, rows, field) {
         if (error) {
           console.log(error)
         } else {
