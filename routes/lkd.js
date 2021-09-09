@@ -97,9 +97,9 @@ router.post('/', auth, async function (req, res, next) {
     let lkd_slug = slugify(lkd_nama.toLowerCase());
     let lkd_pengurus = req.body.lkd_pengurus;
     let lkd_anggota = req.body.lkd_anggota;
-    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
-    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
+    let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth.user_lvl === '1' ? req.body.desa_id : cekAuth.desa_id;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_lkd WHERE lkd_slug = ?', [lkd_slug], function (error, rows, field) {
@@ -144,9 +144,9 @@ router.put('/', auth, async function (req, res, next) {
     let lkd_slug = slugify(lkd_nama.toLowerCase());
     let lkd_pengurus = req.body.lkd_pengurus;
     let lkd_anggota = req.body.lkd_anggota;
-    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
-    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
+    let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth.user_lvl === '1' ? req.body.desa_id : cekAuth.desa_id;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(lkd_slug) AS cnt, lkd_slug, lkd_id FROM tb_lkd WHERE lkd_id = ?', [lkd_id], function (error, rows, field) {

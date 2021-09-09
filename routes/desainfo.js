@@ -114,6 +114,8 @@ router.post('/', auth, upload.single('desa_foto'), async function (req, res, nex
     });
   });
 
+  console.log(req.body.kabupaten_id)
+
   let desa_nama = req.body.desa_nama;
   let desa_slug = slugify(desa_nama.toLowerCase());
   let desa_email = req.body.desa_email;
@@ -124,8 +126,8 @@ router.post('/', auth, upload.single('desa_foto'), async function (req, res, nex
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
   let desa_foto = req.file === undefined ? "" : req.file.filename;
-  let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-  let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+  let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+  let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
 
   const check = await new Promise(resolve => {
     connection.query('SELECT COUNT(desa_id) AS cnt, kabupaten_id, kecamatan_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {
@@ -175,8 +177,8 @@ router.put('/', auth, upload.single('desa_foto'), async function (req, res, next
   let desa_ig = req.body.desa_ig;
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
-  let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-  let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+  let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+  let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
 
   const check = await new Promise(resolve => {
     connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug, desa_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {
@@ -267,8 +269,8 @@ router.put('/profil', auth, upload.single('desa_foto'), async function (req, res
   let desa_ig = req.body.desa_ig;
   let desa_yt = req.body.desa_yt;
   let desa_status_pemerintahan = req.body.desa_status_pemerintahan;
-  let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-  let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+  let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+  let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
 
   const check = await new Promise(resolve => {
     connection.query('SELECT COUNT(desa_id) AS cnt, desa_foto, kabupaten_id, kecamatan_id, desa_slug, desa_id FROM tb_desainfo WHERE desa_slug = ? AND kabupaten_id=? AND kecamatan_id=?', [desa_slug, kabupaten_id, kecamatan_id], function (error, rows, field) {

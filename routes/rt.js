@@ -95,9 +95,9 @@ router.post('/', auth, async function (req, res, next) {
     let rt_tlp = req.body.rt_tlp;
     let rt_topografi = req.body.rt_topografi;
     let rt_jumlah_warga = req.body.rt_jumlah_warga;
-    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
-    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
+    let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth.user_lvl === '1' ? req.body.desa_id : cekAuth.desa_id;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(rt_id) AS cnt, kabupaten_id, kecamatan_id, desa_id FROM tb_rt WHERE rt_nama = ? AND kabupaten_id=? AND kecamatan_id=? AND desa_id=?', [rt_nama, kabupaten_id, kecamatan_id, desa_id], function (error, rows, field) {

@@ -98,9 +98,9 @@ router.post('/', auth, async function (req, res, next) {
     let kk_lahan = req.body.kk_lahan;
     let kk_lantai = req.body.kk_lantai;
     let kk_tanah = req.body.kk_tanah;
-    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
-    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
+    let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth.user_lvl === '1' ? req.body.desa_id : cekAuth.desa_id;
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {
@@ -150,9 +150,9 @@ router.put('/', auth, async function (req, res, next) {
     let kk_lahan = req.body.kk_lahan;
     let kk_lantai = req.body.kk_lantai;
     let kk_tanah = req.body.kk_tanah;
-    let kabupaten_id = cekAuth === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
-    let kecamatan_id = cekAuth === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
-    let desa_id = cekAuth === '1' ? req.body.desa_id : cekAuth.desa_id;
+    let kabupaten_id = cekAuth.user_lvl === '1' ? req.body.kabupaten_id : cekAuth.kabupaten_id;
+    let kecamatan_id = cekAuth.user_lvl === '1' ? req.body.kecamatan_id : cekAuth.kecamatan_id;
+    let desa_id = cekAuth.user_lvl === '1' ? req.body.desa_id : cekAuth.desa_id;
     let rt_id = req.body.rt_id;
 
     const check = await new Promise(resolve => {
